@@ -1,0 +1,19 @@
+{
+  "name": "exalicense-server",
+  "version": "0.0.1-dev",
+  "description": "ExaLicense License Server solution by Exanion",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/exanion/exalicense-server.git"
+  },
+  "author": "Exanion UG",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/exanion/exalicense-server/issues"
+  },
+  "homepage": "https://github.com/exanion/exalicense-server#readme"
+}
