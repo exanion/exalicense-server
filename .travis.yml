@@ -1,0 +1,31 @@
+os: linux
+dist: xenial
+language: node_js
+notifications:
+    email:
+        recipients:
+            - kappelt.peter@gmail.com
+        on_success: always
+        on_failure: always
+services:
+    - docker
+node_js:
+    - '12'
+branches:
+  only:
+    - dev
+    - /^release-.*$/
+cache:
+  directories:
+    - node_modules
+before_install:
+    - export VERSION=$(cat VERSION)
+    - npm update
+install:
+    - npm install
+script:
+    - npm test
+    - docker build -t exanion/exalicense-server:$VERSION .
+    - '[[ ! "$(cat VERSION)" == "dev" ]] && docker tag exanion/exalicense-server:$VERSION exanion/exalicense-server:latest || true'
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+    - docker push exanion/exalicense-server
