@@ -1,0 +1,274 @@
+scalar Date
+
+type Admin {
+    id: ID!
+    organization: Organization!
+    username: String!
+    displayname: String
+    email: String
+    isSelf: Boolean
+    updatedAt: Date
+    createdAt: Date
+}
+
+type Customer {
+    id: ID!
+    organization: Organization!
+    displayname: String!
+    contactName: String
+    contactMail: String
+    contactPhone: String
+    licenses: [License]
+    comment: String
+    updatedAt: Date
+    createdAt: Date
+}
+
+type Feature {
+    id: ID!
+    name: String!
+    displayname: String
+    licenses: [License]
+    product: Product!
+    updatedAt: Date
+    createdAt: Date
+}
+
+type Lease {
+    id: ID!
+    leaseKey: String!
+    expiry: Date!
+    clientId: String
+    license: License!
+    isReleased: Boolean
+    isValid: Boolean
+    updatedAt: Date
+    createdAt: Date
+}
+
+type License {
+    id: ID!
+    customer: Customer!
+    features: [Feature!]!
+    leases: [Lease]
+    leaseCountLimit: Int
+    expiry: Date,
+    isExpired: Boolean!,
+    licenseKeys: [String]
+    comment: String
+    updatedAt: Date
+    createdAt: Date
+}
+
+type Organization {
+    id: ID!
+    displayname: String
+    admins: [Admin]
+    products: [Product]
+    customers: [Customer]
+    licensingEndpoint: String
+    signingKey: String
+    updatedAt: Date
+    createdAt: Date
+}
+
+type Product {
+    id: ID!
+    organization: Organization!
+    name: String!
+    displayname: String
+    features: [Feature]
+    updatedAt: Date
+    createdAt: Date
+}
+
+type Query {
+    admins: [Admin]
+    admin(id: ID!): Admin
+    adminSelf: Admin
+    customers: [Customer]
+    customer(id: ID!): Customer
+    features: [Feature]
+    feature(id: ID!): Feature
+    featureByName(name: String!): Feature
+    leases: [Lease]
+    lease(id: ID!): Lease
+    leaseByKey(leaseKey: String!): Lease
+    licenses: [License]
+    license(id: ID!): License
+    licenseByKey(licenseKey: String): License
+    organization: Organization
+    products: [Product]
+    product(id: ID!): Product
+    productByName(name: String!): Product
+}
+
+type Mutation {
+	organizationSetName(input: UpdateOrganizationInput!): UpdateOrganizationPayload
+    adminCreate(input: CreateAdminInput!): CreateUpdateAdminPayload
+    adminUpdate(input: UpdateAdminInput!): CreateUpdateAdminPayload
+    adminDelete(input: DeleteInput!): DeletePayload
+    setOwnPassword(input: PasswordAdminInput!): CreateUpdateAdminPayload
+    customerCreate(input: CreateCustomerInput!): CreateUpdateCustomerPayload
+    customerUpdate(input: UpdateCustomerInput!): CreateUpdateCustomerPayload
+    customerDelete(input: DeleteInput!): DeletePayload
+    featureCreate(input: CreateFeatureInput!): CreateUpdateFeaturePayload
+    featureUpdate(input: UpdateFeatureInput!): CreateUpdateFeaturePayload
+    featureDelete(input: DeleteInput!): DeletePayload
+    leaseCreate(input: CreateLeaseInput!): CreateReleaseLeasePayload
+    leaseSetReleased(input: ReleaseLeaseInput!): CreateReleaseLeasePayload
+    licenseCreate(input: CreateLicenseInput!): CreateUpdateLicensePayload
+    licenseUpdate(input: UpdateLicenseInput!): CreateUpdateLicensePayload
+    licenseDelete(input: DeleteInput!): DeletePayload
+    productCreate(input: CreateProductInput!): CreateUpdateProductPayload
+    productUpdate(input: UpdateProductInput!): CreateUpdateProductPayload
+    productDelete(input: DeleteInput!): DeletePayload
+}
+
+input UpdateOrganizationInput{
+	displayname: String
+}
+
+type UpdateOrganizationPayload{
+	success: Boolean!
+	message: String
+	organization: Organization
+}
+
+input DeleteInput {
+    id: ID!
+}
+
+type DeletePayload {
+    success: Boolean!
+    message: String
+}
+
+input CreateAdminInput {
+    username: String!
+    displayname: String
+    password: String
+    email: String
+}
+
+input UpdateAdminInput {
+    id: ID!
+    username: String
+    displayname: String
+    email: String
+}
+
+input PasswordAdminInput {
+    currentPassword: String!
+    newPassword: String!
+}
+
+type CreateUpdateAdminPayload {
+    success: Boolean!
+    message: String
+    admin: Admin
+}
+
+input CreateCustomerInput {
+    displayname: String!
+    contactName: String
+    contactMail: String
+    contactPhone: String
+    comment: String
+}
+
+input UpdateCustomerInput {
+    id: ID!
+    displayname: String
+    contactName: String
+    contactMail: String
+    contactPhone: String
+    comment: String
+}
+
+type CreateUpdateCustomerPayload {
+    success: Boolean!
+    message: String
+    customer: Customer
+}
+
+input CreateFeatureInput {
+    name: String!
+    displayname: String
+    product: ID!
+}
+
+input UpdateFeatureInput {
+    id: ID!
+    name: String
+    displayname: String
+}
+
+type CreateUpdateFeaturePayload {
+    success: Boolean!
+    message: String
+    feature: Feature
+}
+
+input CreateLeaseInput {
+    license: ID!
+    expiry: Date
+}
+
+input ReleaseLeaseInput {
+    id: ID!
+    isReleased: Boolean
+}
+
+type CreateReleaseLeasePayload {
+    success: Boolean!
+    message: String
+    lease: Lease
+}
+
+input CreateLicenseInput {
+    customer: ID!
+    features: [ID]
+    leaseCountLimit: Int
+    expiry: Date
+    licenseKeys: [String]
+    comment: String
+}
+
+input UpdateLicenseInput {
+    id: ID!
+    customer: ID
+    features: [ID]
+    leaseCountLimit: Int
+    expiry: Date
+    licenseKeys: [String]
+    comment: String
+}
+
+type CreateUpdateLicensePayload {
+    success: Boolean!
+    message: String
+    license: License
+}
+
+input CreateProductInput {
+    name: String!
+    displayname: String
+}
+
+input UpdateProductInput {
+    id: ID!
+    name: String
+    displayname: String
+}
+
+type CreateUpdateProductPayload {
+    success: Boolean!
+    message: String
+    product: Product
+}
+
+schema {
+    query: Query
+    mutation: Mutation
+}

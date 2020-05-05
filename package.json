@@ -1,9 +1,11 @@
 {
   "name": "exalicense-server",
-  "version": "0.0.1-dev",
+  "version": "0.1.0",
   "description": "ExaLicense License Server solution by Exanion",
   "main": "index.js",
   "scripts": {
+    "start": "node src/index.js",
+    "nodemon": "nodemon src/index.js",
     "test": "jest"
   },
   "repository": {
@@ -15,5 +17,19 @@
   "bugs": {
     "url": "https://github.com/exanion/exalicense-server/issues"
   },
-  "homepage": "https://github.com/exanion/exalicense-server#readme"
+  "homepage": "https://github.com/exanion/exalicense-server#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.3"
+  },
+  "dependencies": {
+    "apollo-server": "^2.12.0",
+    "apollo-server-express": "^2.12.0",
+    "bcrypt": "^4.0.1",
+    "express": "^4.17.1",
+    "graphql": "^15.0.0",
+    "graphql-import": "^1.0.2",
+    "jest": "^25.5.4",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.9.11"
+  }
 }
