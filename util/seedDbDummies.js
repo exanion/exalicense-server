@@ -1,5 +1,7 @@
-const mongoose = require("mongoose");
+const mongoose = require("mongoose");const fs = require("fs");
 const config = require("../config");
+config.privateKey = fs.readFileSync(config.privateKeyFile);
+config.publicKey = fs.readFileSync(config.publicKeyFile);
 const Models = require("../src/Models");
 
 mongoose.connection.on(
@@ -122,13 +124,15 @@ mongoose.connection.once("open", function () {
 
         const lease1 = await Models.Lease.findOneAndUpdate(
             {
-                leaseKey: "lease1",
+                _id: "5eb174119b52c4a22d00fb31",
             },
             {
                 license: lic1._id,
+                clientId: "client1"
             },
             upsertAndNew
         );
+        await lease1.save();
         console.log("Done");
         process.exit(0);
     })();

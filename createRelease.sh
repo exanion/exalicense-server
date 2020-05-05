@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Create a release branch (release-x.y.z) for deploying the package
 # Usage: ./createRelease.sh <version-number>

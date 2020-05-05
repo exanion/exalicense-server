@@ -1,0 +1,26 @@
+version: '3.3'
+services:
+  api:
+    ports:
+      - "${HTTP_PORT}:3040"
+    volumes:
+      - "${DATA_DIR}/keys:/usr/src/app/keys"
+    environment:
+      - privateKeyFile=./keys/${KEYCHAIN_NAME}.key
+      - publicKeyFile=./keys/${KEYCHAIN_NAME}.pem
+      - dbConnection=mongodb://mongo:27017/exalicense-server
+      - NODE_ENV=production
+    restart: always
+    logging:
+      options:
+        max-size: 1g
+    image: exanion/exalicense-server:latest
+    links: 
+      - mongo
+  mongo:
+    container_name: mongo
+    image: mongo
+    volumes:
+      - ${DATA_DIR}/mongodata:/data/db
+    expose:
+      - 27017

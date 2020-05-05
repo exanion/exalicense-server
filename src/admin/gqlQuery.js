@@ -1,22 +1,33 @@
 const Models = require("../Models");
+const config = require("../../config");
 const { ForbiddenError } = require("apollo-server-express");
 
 module.exports = {
     async admins(parent, args, context, info) {
-        return (
+        const admins = (
             await Models.Organization.findById(
                 context.organization._id
             ).populate("admins")
         ).admins;
+        admins.forEach(a => {
+            if (a._id.equals(context.user.id)) {
+                a.isSelf = true;
+            }
+        });
+        return admins;
     },
     async admin(parent, args, context, info) {
-        return await Models.Admin.findOne({
+        const admin = await Models.Admin.findOne({
             organization: context.organization._id,
             _id: args.id,
         });
+        if (admin._id.equals(context.user.id)) admin.isSelf = true;
+        return admin;
     },
     async adminSelf(parent, args, context, info) {
-        return await Models.Admin.findById(context.user._id);
+        const admin = await Models.Admin.findById(context.user._id);
+        if (admin._id.equals(context.user.id)) admin.isSelf = true;
+        return admin;
     },
     async customers(parent, args, context, info) {
         return (
@@ -32,7 +43,14 @@ module.exports = {
         });
     },
     async organization(parent, args, context, info) {
-        return await Models.Organization.findById(context.organization._id);
+        const organization = await Models.Organization.findById(
+            context.organization._id
+        );
+        //@todo make licensing endpoint declaration more responsive
+        organization.licensingEndpoint =
+            context.basepath + "/licensing/" + organization._id;
+        organization.signingKey = config.publicKey.toString();
+        return organization;
     },
     async products(parent, args, context, info) {
         return (
@@ -60,7 +78,7 @@ module.exports = {
         if (!products) return null;
 
         let features = [];
-        products.forEach((p) => {
+        products.forEach(p => {
             features = features.concat(p.features);
         });
         return features;
@@ -102,7 +120,7 @@ module.exports = {
         if (!users) return null;
 
         let licenses = [];
-        users.forEach((p) => {
+        users.forEach(p => {
             licenses = licenses.concat(p.licenses);
         });
         return licenses;
@@ -150,13 +168,13 @@ module.exports = {
         if (!users) return null;
 
         let licenses = [];
-        users.forEach((p) => {
+        users.forEach(p => {
             licenses = licenses.concat(p.licenses);
         });
 
         if (!licenses) return null;
         let leases = [];
-        licenses.forEach((l) => {
+        licenses.forEach(l => {
             leases = leases.concat(l.leases);
         });
         return leases;

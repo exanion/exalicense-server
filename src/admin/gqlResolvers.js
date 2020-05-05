@@ -2,7 +2,7 @@ const Models = require("../Models");
 const { ForbiddenError } = require("apollo-server-express");
 
 const Query = require("./gqlQuery");
-const Mutation = require("./gqlMutation")
+const Mutation = require("./gqlMutation");
 
 module.exports = {
     Query,
@@ -67,23 +67,33 @@ module.exports = {
     },
     Organization: {
         async admins(parent, args, context, info) {
-            return await Models.Admin.find({organization: parent.id});
+            const admins = await Models.Admin.find({ organization: parent.id });
+            admins.forEach(a => {
+                if (a._id.equals(context.user.id)) {
+                    a.isSelf = true;
+                }
+            });
+            return admins;
         },
         async products(parent, args, context, info) {
-            return await Models.Product.find({organization: parent.id});
+            return await Models.Product.find({ organization: parent.id });
         },
         async customers(parent, args, context, info) {
-            return await Models.Customer.find({organization: parent.id});
+            return await Models.Customer.find({ organization: parent.id });
         },
     },
     Product: {
         async organization(parent, args, context, info) {
-            return (await Models.Product.findById(parent.id).populate("organization"))
-                .organization;
+            return (
+                await Models.Product.findById(parent.id).populate(
+                    "organization"
+                )
+            ).organization;
         },
         async features(parent, args, context, info) {
-            return (await Models.Product.findById(parent.id).populate("features"))
-                .features;
+            return (
+                await Models.Product.findById(parent.id).populate("features")
+            ).features;
         },
-    }
+    },
 };

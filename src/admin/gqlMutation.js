@@ -23,9 +23,10 @@ module.exports = {
             username: input.username,
             organization: context.organization._id,
         });
-        if (input.displayname) admin.displayname = input.displayname;
-        if (input.password) admin.password = input.password;
-        if (input.email) admin.email = input.email;
+        
+        if ("displayname" in input) admin.displayname = input.displayname;
+        if ("password" in input) admin.password = input.password;
+        if ("email" in input) admin.email = input.email;
         await admin.save();
 
         return { success: true, admin };
@@ -37,9 +38,9 @@ module.exports = {
         });
         if (!admin) throw new UserInputError("Admin not found");
 
-        if (input.username) admin.username = input.username;
-        if (input.displayname) admin.displayname = input.displayname;
-        if (input.email) admin.email = input.email;
+        if ("username" in input) admin.username = input.username;
+        if ("displayname" in input) admin.displayname = input.displayname;
+        if ("email" in input) admin.email = input.email;
         await admin.save();
 
         return { success: true, admin };
@@ -59,7 +60,11 @@ module.exports = {
         const admin = await Models.Admin.findById(context.user._id);
         if (!admin) throw new UserInputError("Auth invalid");
 
-        if (input.newPassword) admin.password = input.newPassword;
+        if ("newPassword" in input) {
+            if (!admin.checkPassword(input.currentPassword))
+                throw new UserInputError("Current password is wrong");
+            admin.password = input.newPassword;
+        }
         await admin.save();
         return { success: true, admin };
     },
@@ -68,11 +73,11 @@ module.exports = {
             username: input.username,
             organization: context.organization._id,
         });
-        if (input.displayname) customer.displayname = input.displayname;
-        if (input.contactName) customer.contactName = input.contactName;
-        if (input.contactMail) customer.contactMail = input.contactMail;
-        if (input.contactPhone) customer.contactPhone = input.contactPhone;
-        if (input.comment) customer.comment = input.comment;
+        if ("displayname" in input) customer.displayname = input.displayname;
+        if ("contactName" in input) customer.contactName = input.contactName;
+        if ("contactMail" in input) customer.contactMail = input.contactMail;
+        if ("contactPhone" in input) customer.contactPhone = input.contactPhone;
+        if ("comment" in input) customer.comment = input.comment;
         await customer.save();
 
         return { success: true, customer };
@@ -84,11 +89,11 @@ module.exports = {
         });
         if (!customer) throw new UserInputError("Customer not found");
 
-        if (input.displayname) customer.displayname = input.displayname;
-        if (input.contactName) customer.contactName = input.contactName;
-        if (input.contactMail) customer.contactMail = input.contactMail;
-        if (input.contactPhone) customer.contactPhone = input.contactPhone;
-        if (input.comment) customer.comment = input.comment;
+        if ("displayname" in input) customer.displayname = input.displayname;
+        if ("contactName" in input) customer.contactName = input.contactName;
+        if ("contactMail" in input) customer.contactMail = input.contactMail;
+        if ("contactPhone" in input) customer.contactPhone = input.contactPhone;
+        if ("comment" in input) customer.comment = input.comment;
         await customer.save();
 
         return { success: true, customer };
@@ -100,11 +105,9 @@ module.exports = {
         }).populate("licenses");
         if (!customer) throw new UserInputError("Customer not found");
         if (customer.licenses && customer.licenses.length)
-            return {
-                success: false,
-                message:
-                    "Can't delete customer since there are attached licenses left!",
-            };
+            throw new UserInputError(
+                "Can't delete customer since there are attached licenses left!"
+            );
         await customer.remove();
         return { success: true };
     },
@@ -113,7 +116,7 @@ module.exports = {
             name: input.name,
             organization: context.organization._id,
         });
-        if (input.displayname) product.displayname = input.displayname;
+        if ("displayname" in input) product.displayname = input.displayname;
         await product.save();
 
         return { success: true, product };
@@ -125,8 +128,8 @@ module.exports = {
         });
         if (!product) throw new UserInputError("Product not found");
 
-        if (input.name) product.name = input.name;
-        if (input.displayname) product.displayname = input.displayname;
+        if ("name" in input) product.name = input.name;
+        if ("displayname" in input) product.displayname = input.displayname;
         await product.save();
 
         return { success: true, product };
@@ -138,11 +141,9 @@ module.exports = {
         }).populate("features");
         if (!product) throw new UserInputError("Customer not found");
         if (product.features && product.features.length)
-            return {
-                success: false,
-                message:
-                    "Can't delete product since there are features attached!",
-            };
+            throw new UserInputError(
+                "Can't delete product since there are features attached!"
+            );
         await product.remove();
         return { success: true };
     },
@@ -157,7 +158,7 @@ module.exports = {
             name: input.name,
             product: product._id,
         });
-        if (input.displayname) feature.displayname = input.displayname;
+        if ("displayname" in input) feature.displayname = input.displayname;
         await feature.save();
 
         return { success: true, feature };
@@ -174,8 +175,8 @@ module.exports = {
         )
             throw new UserInputError("Feature not found");
 
-        if (input.name) feature.name = input.name;
-        if (input.displayname) feature.displayname = input.displayname;
+        if ("name" in input) feature.name = input.name;
+        if ("displayname" in input) feature.displayname = input.displayname;
         await feature.save();
 
         return { success: true, feature };
@@ -195,11 +196,9 @@ module.exports = {
             throw new UserInputError("Feature not found");
 
         if (feature.licenses && feature.licenses.length)
-            return {
-                success: false,
-                message:
-                    "Can't delete feature since there are licenses attached!",
-            };
+            throw new UserInputError(
+                "Can't delete feature since there are licenses attached!"
+            );
         await feature.remove();
         return { success: true };
     },
@@ -207,7 +206,7 @@ module.exports = {
         const license = await Models.License.findById(input.license).populate(
             "customer"
         );
-        
+
         if (
             !license ||
             !context.organization._id.equals(
@@ -222,7 +221,7 @@ module.exports = {
 
         const lease = new Models.Lease({
             license: license._id,
-            expiry: input.expiry ? input.expiry : defaultExpiry(),
+            expiry: input.expiry ? new Date(input.expiry) : defaultExpiry(),
         });
         if (input.expiry) lease.expiry = input.expiry;
         await lease.save();
@@ -247,7 +246,7 @@ module.exports = {
         )
             throw new UserInputError("Lease not found");
 
-        if (isReleased in input)
+        if ("isReleased" in input)
             lease.isReleased = input.isReleased ? true : false;
         await lease.save();
 
@@ -264,17 +263,19 @@ module.exports = {
             customer: customer._id,
         });
 
-        if (input.features && input.features.isArray()) {
+        if (input.features && Array.isArray(input.features)) {
             let features = input.features;
             features = await Promise.all(
-                features.map(async (id) => {
+                features.map(async id => {
                     const feature = await Models.Feature.findById(id).populate(
                         "product"
                     );
+
                     if (
                         !feature ||
-                        (feature.product || {}).organization !==
-                            context.organization._id
+                        !context.organization._id.equals(
+                            (feature.product || {}).organization
+                        )
                     ) {
                         throw new UserInputError(
                             `Given feature with id ${id} does not exist!`
@@ -284,14 +285,14 @@ module.exports = {
                 })
             );
 
-            license.features = features.map((k) => k._id);
+            license.features = features.map(k => k._id);
         }
-        if (input.leaseCountLimit)
+        if ("leaseCountLimit" in input)
             license.leaseCountLimit = input.leaseCountLimit;
-        if (input.expiry) license.expiry = input.expiry;
-        if (input.licenseKeys)
-            license.licenseKey = input.licenseKeys.map((k) => k.toString());
-        if (input.comment) license.comment = input.comment;
+        if ("expiry" in input) license.expiry = input.expiry;
+        if ("licenseKeys" in input)
+            license.licenseKeys = input.licenseKeys.map(k => k.toString());
+        if ("comment" in input) license.comment = input.comment;
         await license.save();
 
         return { success: true, license };
@@ -308,10 +309,10 @@ module.exports = {
         )
             throw new UserInputError("License not found");
 
-        if (input.features && input.features.isArray()) {
+        if (input.features && Array.isArray(input.features)) {
             let features = input.features;
             features = await Promise.all(
-                features.map(async (id) => {
+                features.map(async id => {
                     const feature = await Models.Feature.findById(id).populate(
                         "product"
                     );
@@ -329,14 +330,24 @@ module.exports = {
                 })
             );
 
-            license.features = features.map((k) => k._id);
+            license.features = features.map(k => k._id);
         }
-        if (input.leaseCountLimit)
+
+        if ("customer" in input) {
+            const customer = await Models.Customer.findOne({
+                _id: input.customer,
+                organization: context.organization._id,
+            });
+            if (!customer)
+                throw new UserInputError("Given customer wasn't found");
+            license.customer = customer._id;
+        }
+        if ("leaseCountLimit" in input)
             license.leaseCountLimit = input.leaseCountLimit;
-        if (input.expiry) license.expiry = input.expiry;
-        if (input.licenseKeys)
-            license.licenseKey = input.licenseKeys.map((k) => k.toString());
-        if (input.comment) license.comment = input.comment;
+        if ("expiry" in input) license.expiry = new Date(input.expiry);
+        if ("licenseKeys" in input)
+            license.licenseKeys = input.licenseKeys.map(k => k.toString());
+        if ("comment" in input) license.comment = input.comment;
         await license.save();
 
         return { success: true, license };

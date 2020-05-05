@@ -71,7 +71,18 @@ const apolloAuthContext = async ({ req }) => {
         throw new AuthenticationError("Authentication required (auth error)");
     }
 
-    return { user, organization: user.organization };
+    //reconstruct hostname
+    const basepath =
+        (req.get("X-Forwarded-Proto")
+            ? req.get("X-Forwarded-Proto")
+            : req.protocol) +
+        "://" +
+        (req.get("X-Forwarded-Host")
+            ? req.get("X-Forwarded-Host")
+            : req.get("Host")) +
+        "/api";
+
+    return { user, organization: user.organization, basepath };
 };
 
 module.exports = {

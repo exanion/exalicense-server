@@ -12,8 +12,10 @@ const leaseSchema = new mongoose.Schema(
         expiry: {
             type: Date,
             required: true,
-            immutable: true,
+            //immutable: true,
+            //Problem: if license get's populated with leases, the leases won't contain the immutable field. Maybe open bug?
         },
+        clientId: String,
         license: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "License",
@@ -26,10 +28,17 @@ const leaseSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+leaseSchema.virtual("isValid").get(function () {
+    return !this.isReleased && (!this.expiry || this.expiry > new Date());
+});
 
-leaseSchema.pre("validate", async function (next) {
+leaseSchema.pre("validate", function (next) {
     const lease = this;
     if (lease.leaseKey) return next();
+    
+    if(!lease.expiry) {
+        lease.expiry = new Date(Date.now() + 30 * 60 * 1000);
+    }
 
     lease.leaseKey = jwt.sign(
         {

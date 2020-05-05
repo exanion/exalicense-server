@@ -27,5 +27,8 @@ licenseSchema.virtual("leases", {
     foreignField: "license",
     localField: "_id",
 });
+licenseSchema.virtual("isExpired").get(function () {
+    return (this.expiry && this.expiry < new Date()) ? true:false;
+});
 
 module.exports = mongoose.model("License", licenseSchema);

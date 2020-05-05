@@ -6,6 +6,7 @@ type Admin {
     username: String!
     displayname: String
     email: String
+    isSelf: Boolean
     updatedAt: Date
     createdAt: Date
 }
@@ -37,8 +38,10 @@ type Lease {
     id: ID!
     leaseKey: String!
     expiry: Date!
+    clientId: String
     license: License!
     isReleased: Boolean
+    isValid: Boolean
     updatedAt: Date
     createdAt: Date
 }
@@ -49,7 +52,8 @@ type License {
     features: [Feature!]!
     leases: [Lease]
     leaseCountLimit: Int
-    expiry: Date
+    expiry: Date,
+    isExpired: Boolean!,
     licenseKeys: [String]
     comment: String
     updatedAt: Date
@@ -62,6 +66,8 @@ type Organization {
     admins: [Admin]
     products: [Product]
     customers: [Customer]
+    licensingEndpoint: String
+    signingKey: String
     updatedAt: Date
     createdAt: Date
 }
@@ -153,7 +159,8 @@ input UpdateAdminInput {
 }
 
 input PasswordAdminInput {
-    newPassword: String
+    currentPassword: String!
+    newPassword: String!
 }
 
 type CreateUpdateAdminPayload {
@@ -230,6 +237,7 @@ input CreateLicenseInput {
 
 input UpdateLicenseInput {
     id: ID!
+    customer: ID
     features: [ID]
     leaseCountLimit: Int
     expiry: Date
