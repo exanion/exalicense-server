@@ -1,6 +1,6 @@
 {
   "name": "exalicense-server",
-  "version": "0.0.1-dev",
+  "version": "0.1.1",
   "description": "ExaLicense License Server solution by Exanion",
   "main": "index.js",
   "scripts": {
