@@ -4,6 +4,7 @@ config.privateKey = fs.readFileSync(config.privateKeyFile);
 config.publicKey = fs.readFileSync(config.publicKeyFile);
 
 const adminAuth = require("./admin/adminAuth");
+const LicensingEndpoints = require("./licensing/LicensingEndpoints");
 const express = require("express");
 const mongoose = require("mongoose");
 const { ApolloServer, gql } = require("apollo-server-express");
@@ -17,6 +18,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/admin/auth", adminAuth.authRouter);
+app.use("/licensing", LicensingEndpoints);
 
 /**
  * GraphQL Server
