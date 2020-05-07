@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const config = require("../../config");
 const jwt = require("jsonwebtoken");
+const {
+    reverseFeatureProductObject,
+} = require("../reverseFeatureProductObject");
 
 const leaseSchema = new mongoose.Schema(
     {
@@ -32,18 +35,27 @@ leaseSchema.virtual("isValid").get(function () {
     return !this.isReleased && (!this.expiry || this.expiry > new Date());
 });
 
-leaseSchema.pre("validate", function (next) {
+leaseSchema.pre("validate", async function (next) {
     const lease = this;
     if (lease.leaseKey) return next();
-    
-    if(!lease.expiry) {
+
+    if (!lease.expiry) {
         lease.expiry = new Date(Date.now() + 30 * 60 * 1000);
+    }
+
+    const license = await require("../Models")
+        .License.findById(lease.license)
+        .populate({ path: "features", populate: "product" });
+    let validFor;
+    if(license){
+        validFor = reverseFeatureProductObject(license.features || [], false);
     }
 
     lease.leaseKey = jwt.sign(
         {
             lease: lease._id,
             license: lease.license,
+            validFor,
             exp: Math.round(lease.expiry.getTime() / 1000),
         },
         config.privateKey,

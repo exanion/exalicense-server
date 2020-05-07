@@ -1,3 +1,4 @@
+
 # ExaLicense Server Instance
 
 ExaLicense is a flexible server to manage, obtain and validate licenses for your product. It supports license pooling, that means you can allow your customer to use a license for a certain number of instances/ users/ ...
@@ -28,6 +29,7 @@ The following error codes can be returned:
 
 ### Validate a license key
 ```GET /key/validate```
+
 **Request Parameters**
 * `key` (String, required): License Key to check
 
@@ -45,7 +47,9 @@ The following error codes can be returned:
 
 ### Obtain a lease
 A lease allows the usage of the product/ feature for a certain period.
+
 ```POST /lease/obtain```
+
 **Request Parameters**
 * `key` (String, required): License key to use
 * `expiry` (Integer || null): Requested validity of the lease from the time of issue in seconds - default 600 (10 minutes)
@@ -61,7 +65,9 @@ A lease allows the usage of the product/ feature for a certain period.
 
 ### Validate a lease
 Check whether the given lease code is valid
+
 ```GET /lease/validate```
+
 **Request Parameters**
 * `lease` (String, required): Lease code to validate
 
@@ -73,7 +79,9 @@ Check whether the given lease code is valid
 
 ### Renew a lease
 Renew a lease, it is required that the current lease is yet active and valid
+
 ```POST /lease/renew```
+
 **Request Parameters**
 * `lease` (String, required): Current lease code that shall be renewed
 * `expiry` (Integer || null): Requested validity of the new lease from the time of issue in seconds - default 600 (10 minutes)
@@ -87,14 +95,17 @@ Renew a lease, it is required that the current lease is yet active and valid
 
 ### Release a lease
 Release a lease (e.g. if the application is closed), so other users can use the license out of the pool
+
 ```POST /lease/release```
+
 **Request Parameters**
 * `lease` (String, required): Lease code to release
 
-** Response Parameters**
+**Response Parameters**
 * `success` (Boolean, required): Indicates whether the lease was released successfully
 * `errorCode` (ErrorCode || null): Problem that has occured: LEASE_INVALID || null
 
 ### Obtain the signing key
 A keychain is used by the server to sign the leases. This endpoint returns the public key that can be used to validate a lease, e.g. for offline validation of leases.
+
 ```GET /signature.pem```
