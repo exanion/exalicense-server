@@ -37,7 +37,7 @@ git add package*.json
 
 git commit -m "Created release branch for version $version"
 
-read -p "Branch created successfully. Push now to origin? [y/N]" pushnow
+read -p "Branch created successfully. Push now to origin? [y/N] " pushnow
 if [ "$pushnow" == "y" ]
 then
     echo "Pushing to origin..."

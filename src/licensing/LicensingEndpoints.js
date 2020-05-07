@@ -5,6 +5,7 @@ const config = require("../../config");
 
 const licensingEndpoint = express.Router();
 const router = express.Router();
+const { reverseFeatureProductObject } = require("../reverseFeatureProductObject");
 
 const ErrorCode = {
     KeyInvalid: "KEY_INVALID",
@@ -13,36 +14,6 @@ const ErrorCode = {
     LeaseInvalid: "LEASE_INVALID",
     LeaseReleased: "LEASE_RELEASED",
     LeaseExpired: "LEASE_EXPIRED",
-};
-
-/**
- * Some queries return data in form features: [{product: {...}}]
- * Map it to products: [{features: [...]}]
- */
-const reverseFeatureProductObject = features => {
-    let v = [];
-    features.map(f => {
-        if (!v.filter(x => x.product === f.product.name).length) {
-            v.push({
-                product: f.product.name,
-                productDescription: f.product.displayname,
-                features: [
-                    { feature: f.name, featureDescription: f.displayname },
-                ],
-            });
-        } else {
-            for (let i = 0; i < v.length; i++) {
-                if (v[i].product == f.product.name) {
-                    v[i].features.push({
-                        feature: f.name,
-                        featureDescription: f.displayname,
-                    });
-                }
-            }
-        }
-    });
-
-    return v;
 };
 
 licensingEndpoint.use(
