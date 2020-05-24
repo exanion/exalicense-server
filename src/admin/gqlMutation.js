@@ -23,7 +23,7 @@ module.exports = {
             username: input.username,
             organization: context.organization._id,
         });
-        
+
         if ("displayname" in input) admin.displayname = input.displayname;
         if ("password" in input) admin.password = input.password;
         if ("email" in input) admin.email = input.email;
@@ -344,7 +344,8 @@ module.exports = {
         }
         if ("leaseCountLimit" in input)
             license.leaseCountLimit = input.leaseCountLimit;
-        if ("expiry" in input) license.expiry = new Date(input.expiry);
+        if ("expiry" in input)
+            license.expiry = input.expiry ? new Date(input.expiry) : null;
         if ("licenseKeys" in input)
             license.licenseKeys = input.licenseKeys.map(k => k.toString());
         if ("comment" in input) license.comment = input.comment;
