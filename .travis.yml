@@ -26,6 +26,6 @@ install:
 script:
     - npm test
     - docker build -t exanion/exalicense-server:$VERSION .
-    - '[[ ! "$(cat VERSION)" == "dev" ]] && docker tag exanion/exalicense-server:$VERSION exanion/exalicense-server:latest || true'
+    - '[[ ! "$(cat VERSION)" == "0.0.1-dev" ]] && docker tag exanion/exalicense-server:$VERSION exanion/exalicense-server:latest || true'
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
     - docker push exanion/exalicense-server
